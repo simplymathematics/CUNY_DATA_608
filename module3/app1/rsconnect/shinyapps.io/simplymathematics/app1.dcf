@@ -1,0 +1,10 @@
+name: app1
+title:
+username:
+account: simplymathematics
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 779982
+bundleId: 1929505
+url: https://simplymathematics.shinyapps.io/app1/
+when: 1552268968.16809

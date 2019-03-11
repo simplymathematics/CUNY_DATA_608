@@ -1,0 +1,85 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+df <- read.csv('https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv')
+df <- as.data.frame(df)
+year = 1999:2010
+states = unique(df$State)
+diseases = unique(df$ICD.Chapter)
+national = c()
+i = 1
+j = 1
+
+slice <- df %>% filter(State == states[i], ICD.Chapter == diseases[j])
+ts <- slice$Deaths
+plot(ts, type = 'l')
+```
+
+```{r}
+library(plyr)
+ddply(df, .(State,Year,ICD.Chapter),mutate, y = sprintf("%.2f%%",c(NA,100*diff(Deaths)/Deaths[-length(Deaths)])))
+```
+
+
+```{r}
+for(j in 1:length(diseases)){
+  for(k in 1:length(year)){
+    slice <- df %>% filter(ICD.Chapter == diseases[j], Year == year[k])
+    this <- as.data.frame(cbind(diseases[j], "US", year[k], sum(slice$Deaths), sum(slice$Population), sum(slice$Deaths)/sum(slice$Population)*1000))
+    #colnames(this) <- colnames(df)
+    #new <- rbind(df, this)
+  }
+}
+
+
+```
+
+```{r}
+
+
+c(diseases[j], "US", year[k], sum(slice$Deaths), sum(slice$Population), mean(slice$Crude.Rate))
+```
+
+
+```{r}
+ui <- fluidPage(
+  headerPanel('Death Rate Changes by State and Disease'),
+  sidebarPanel(
+    selectInput('disease', 'Disease', unique(df$ICD.Chapter), selected='Certain conditions originating in the perinatal period')
+  ),
+  mainPanel(
+    plotOutput('plot1')
+  )
+)
+
+server <- shinyServer(function(input, output, session) {
+  
+  selectedData <- reactive({
+    dfSlice <- df %>%
+      filter(ICD.Chapter == input$disease)
+  })
+  
+  output$plot1 <- renderPlot({
+    
+    dfSlice <- df %>%
+      filter(ICD.Chapter == input$disease)
+    
+    ggplot(selectedData(), aes(x = State, y = Crude.Rate)) +
+      geom_bar(stat = 'identity')
+  })
+  
+  output$stats <- renderPrint({
+    dfSliceTier <- selectedData() %>%
+      filter(Tier == input$tier)
+    
+    summary(dfSliceTier$HPI)
+  })
+  
+})
+
+shinyApp(ui = ui, server = server)
+
+```
