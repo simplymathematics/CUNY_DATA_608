@@ -1,42 +1,41 @@
-library(ggplot2)
-library(dplyr)
-library(plotly)
-library(shiny)
+df <- read.csv('https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv')
+df <- as.data.frame(df)
 
-df <- read.csv('https://raw.githubusercontent.com/charleyferrari/CUNY_DATA608/master/lecture3/Sample%20Code/hpi.csv')
-df$DATE <- as.POSIXct(strptime(df$DATE, format = '%m/%d/%y'))
+
 
 ui <- fluidPage(
-  headerPanel('Housing Price Explorer'),
+  headerPanel('You Death Rate Changes'),
   sidebarPanel(
-    selectInput('seas', 'Seasonality', unique(df$Seasonality), selected='SA'),
-    selectInput('metro', 'Metro Area', unique(df$Metro), selected='Atlanta'),
-    selectInput('tier', 'Housing Tier', unique(df$Tier), selected='High')
+    selectInput('disease', 'Disease', unique(df$ICD.Chapter), selected='Certain conditions originating in the perinatal period')
   ),
   mainPanel(
-    plotOutput('plot1'),
-    verbatimTextOutput('stats')
+    plotOutput('plot1')
   )
 )
 
-server <- function(input, output) {
+server <- shinyServer(function(input, output, session) {
+  
+  selectedData <- reactive({
+    dfSlice <- df %>%
+      filter(ICD.Chapter == input$disease)
+  })
   
   output$plot1 <- renderPlot({
     
     dfSlice <- df %>%
-      filter(Seasonality == input$seas, Metro == input$metro)
+      filter(ICD.Chapter == input$disease)
     
-    ggplot(dfSlice, aes(x = DATE, y = HPI, color = Tier)) +
-      geom_line()
+    ggplot(selectedData(), aes(x = State, y = Crude.Rate)) +
+      geom_bar(stat = 'identity')
   })
   
   output$stats <- renderPrint({
-    dfSlice <- df %>%
-      filter(Seasonality == input$seas, Metro == input$metro, Tier == input$tier)
+    dfSliceTier <- selectedData() %>%
+      filter(Tier == input$tier)
     
-    summary(dfSlice$HPI)
+    summary(dfSliceTier$HPI)
   })
   
-}
+})
 
 shinyApp(ui = ui, server = server)

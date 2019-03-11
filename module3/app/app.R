@@ -1,7 +1,6 @@
 df <- read.csv('https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv')
 df <- as.data.frame(df)
 df <- as.data.frame(subset(df, df$Year == '2010'))
-df
 ui <- fluidPage(
   headerPanel('Death Rates by Various Cause for each State'),
   sidebarPanel(
@@ -28,12 +27,6 @@ server <- shinyServer(function(input, output, session) {
       geom_bar(stat = 'identity')
   })
   
-  output$stats <- renderPrint({
-    dfSliceTier <- selectedData() %>%
-      filter(Tier == input$tier)
-    
-    summary(dfSliceTier$HPI)
-  })
   
 })
 
