@@ -24,9 +24,6 @@ for boro in boros:
     soql_health = pd.read_json(soql_url)
     soql_health['boroname'] = boro
     city = city.append(soql_health)
-city = city.replace({'health':'Poor'}, 1)
-city = city.replace({'health':'Fair'}, 2)
-city = city.replace({'health':'Good'}, 3)
 
 
 app = dash.Dash('app', server=server)
@@ -57,12 +54,9 @@ def update_graph(selected_dropdown_value):
 
     return {
         'data': [{
-            'x': dff.count_tree_id,
-            'y': dff.health,
-            'line': {
-                'width': 3,
-                'shape': 'spline'
-            }
+            'x': dff.health,
+            'y': dff.count_tree_id,
+            'type': 'bar'
         }],
         'layout': {
             'margin': {
