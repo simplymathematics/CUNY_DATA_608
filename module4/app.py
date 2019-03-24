@@ -13,8 +13,7 @@ import plotly.graph_objs as go
 import scipy.stats as scs
 
 server = flask.Flask('app')
-server.secret_key = os.environ.get('secret_key', 'secret')
-cocalc_project_id = os.environ['COCALC_PROJECT_ID']
+
 
 city = pd.DataFrame()
 boros = ["'Bronx'","'Staten Island'", "'Manhattan'", "'Queens'", "'Brooklyn'"]
@@ -244,9 +243,6 @@ def update_graph2(selected_dropdown_value):
     }
 
 port = 9990
-pfx = "/{}/server/{}/".format(cocalc_project_id, port)
-app.config.requests_pathname_prefix = pfx
-
 if __name__ == '__main__':
-    print("browse to https://cocalc.com{}".format(pfx))
+    print("browse to localhost:" + str(port))
     app.run_server(debug=True, port=port, host='0.0.0.0')
