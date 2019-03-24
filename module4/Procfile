@@ -1,1 +1,1 @@
-web: gunicorn module4.wgsi
+web: gunicorn server:app
