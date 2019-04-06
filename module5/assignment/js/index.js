@@ -1,3 +1,3 @@
-d3.json('hpi/NSA/San Francisco'.replace(' ', '%20'), function(json) {
+d3.json('/tree_health/Good/Belmont.replace(' ', '%20'), function(json) {
   console.log(json);
 });
