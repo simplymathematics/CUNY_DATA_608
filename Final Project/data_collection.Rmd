@@ -1,0 +1,87 @@
+---
+title: "Internet Data Cleaning"
+author: "simplymathematics"
+date: "5/13/2019"
+output: pdf_document
+---
+
+```{r}
+library(wbstats)
+internet.indicators <- as.data.frame(wbsearch(pattern = "internet"))
+cellular.indicators <- as.data.frame(wbsearch(pattern = "cellular"))
+
+
+```
+
+```{r}
+internet.indicators
+```
+
+```{r}
+cellular.indicators
+
+```
+
+```{r}
+bb.per.100 <- as.data.frame(wb(indicator = "IT.NET.BBND.P2", startdate = 2017, enddate =2017))
+bb.per.100$date <- NULL
+bb.per.100$indicatorID <- NULL
+bb.per.100$iso2c <- NULL
+bb.per.100$country <- NULL
+bb.per.100$indicator <- NULL
+colnames(bb.per.100) <- c("iso3c", "Broadband")
+df1 <- bb.per.100
+```
+
+```{r}
+cell.per.100 <- as.data.frame(wb(indicator = "IT.CEL.SETS.P2", startdate = 2017, enddate =2017))
+cell.per.100$date <- NULL
+cell.per.100$indicatorID <- NULL
+cell.per.100$iso2c <- NULL
+cell.per.100$country <- NULL
+cell.per.100$indicator <- NULL
+
+colnames(cell.per.100) <- c("iso3c", "Cells")
+df2 <- cell.per.100
+
+```
+```{r}
+servers.per.million <- as.data.frame(wb(indicator = "IT.NET.SECR.P6", startdate = 2017, enddate =2017))
+servers.per.million$date <- NULL
+servers.per.million$indicatorID <- NULL
+servers.per.million$iso2c <- NULL
+servers.per.million$country <- NULL
+servers.per.million$indicator <- NULL
+
+colnames(servers.per.million) <- c("iso3c", "Servers")
+
+df3 <- servers.per.million
+
+```
+
+
+```{r}
+high.tech.exports <- as.data.frame(wb(indicator = "TX.VAL.TECH.CD", startdate = 2017, enddate =2017))
+high.tech.exports$date <- NULL
+high.tech.exports$indicatorID <- NULL
+high.tech.exports$iso2c <- NULL
+high.tech.exports$country <- NULL
+high.tech.exports$indicator <- NULL
+
+colnames(high.tech.exports) <- c("iso3c", "Exports")
+df4 <- high.tech.exports
+
+```
+
+
+
+
+
+```{r}
+# Broadband, Cells, Servers, Exports
+df <- merge(x = df1, y = df2, by = "iso3c", all = TRUE)
+df <- merge(x = df,  y = df3, by = "iso3c", all = TRUE)
+df <- merge(x = df,  y = df4, by = "iso3c", all = TRUE)
+df
+write.csv(df, file = "InternetIndicators.csv")
+```

@@ -1,0 +1,40 @@
+
+
+        <head>
+<!-- Plotly.js -->
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        </head>
+        <body>
+        <!-- Plotly chart will be drawn inside this DIV -->
+        <div id="myDiv"></div>
+        <script>
+        Plotly.d3.csv('InternetIndicators.csv', function(err, rows){
+      function unpack(rows, key) {
+          return rows.map(function(row) { return row[key]; });
+      }
+
+    var data = [{
+        type: 'choropleth',
+        locationmode: 'country names',
+        locations: unpack(rows, 'country'),
+        z: unpack(rows, 'Broadband'),
+        text: unpack(rows, 'country'),
+        autocolorscale: true
+    }];
+
+    var layout = {
+      title: 'Broadband Subscribers by Country',
+      geo: {
+          projection: {
+              type: 'robinson'
+          }
+      }
+    };
+
+    Plotly.plot(myDiv, data, layout, {showLink: false});
+
+});
+        </script>
+        </body>
+
+
