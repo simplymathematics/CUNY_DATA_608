@@ -22,7 +22,16 @@
                 locations: unpack(rows, 'country'),
                 z: unpack(rows, 'Broadband'),
                 text: unpack(rows, 'country'),
-                autocolorscale: true
+                //autocolorscale: true
+                colorscale: 'Portland',
+                autosize: false,
+                height: 540,
+                width: 990,
+                font: {
+                  family: 'Courier New, monospace',
+                  size: 18,
+                  color: '#7f7f7f'
+                },
             }];
 
             var layout1 = {
@@ -39,7 +48,16 @@
                 locations: unpack(rows, 'country'),
                 z: unpack(rows, 'Cells'),
                 text: unpack(rows, 'country'),
-                autocolorscale: true
+                //autocolorscale: true
+                colorscale: 'Portland',
+                autosize: false,
+                height: 540,
+                width: 990,
+                font: {
+                  family: 'Courier New, monospace',
+                  size: 18,
+                  color: '#7f7f7f'
+                },
             }];
 
             var layout2 = {
@@ -56,11 +74,20 @@
                 locations: unpack(rows, 'country'),
                 z: unpack(rows, 'Servers'),
                 text: unpack(rows, 'country'),
-                autocolorscale: true
+                //autocolorscale: true
+                colorscale: 'Portland',
+                autosize: false,
+                height: 540,
+                width: 990,
+                font: {
+                  family: 'Courier New, monospace',
+                  size: 18,
+                  color: '#7f7f7f'
+                },
             }];
 
             var layout3 = {
-              title: 'Internet Connected Servers per 1 Million People',
+              title: 'Internet Connected Servers per 10 Thousand People',
               geo: {
                   projection: {
                       type: 'robinson'
@@ -73,7 +100,16 @@
                 locations: unpack(rows, 'country'),
                 z: unpack(rows, 'Exports'),
                 text: unpack(rows, 'country'),
-                autocolorscale: true
+                //autocolorscale: true
+                autosize: false,
+                height: 540,
+                width: 990,
+                colorscale: 'Portland',
+                font: {
+                  family: 'Courier New, monospace',
+                  size: 18,
+                  color: '#7f7f7f'
+                },
             }];
 
             var layout4 = {
@@ -84,6 +120,7 @@
                   }
               }
             };
+
             Plotly.plot(myDiv1, data1, layout1, {showLink: false});
             Plotly.plot(myDiv2, data2, layout2, {showLink: false});
             Plotly.plot(myDiv3, data3, layout3, {showLink: false});
