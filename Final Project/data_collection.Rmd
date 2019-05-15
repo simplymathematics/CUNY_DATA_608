@@ -4,7 +4,11 @@ author: "simplymathematics"
 date: "5/13/2019"
 output: pdf_document
 ---
+# Internet Data Collection
 
+## Dependencies
+
+The required packages are mentioned below.
 ```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 library(wbstats)
 library(curl, quietly = TRUE)
@@ -12,23 +16,34 @@ library(XML, quietly= TRUE)
 library(stringr, quietly= TRUE)
 library(tidyverse, quietly = TRUE)
 suppressMessages(library(countrycode))
+```
 
+
+# Data Source 1
+
+Below, I searched the World Bank api (using the `wb` package) to find all data that contained the words 'internet' or 'cellular' in the description.
+```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 internet.indicators <- as.data.frame(wbsearch(pattern = "internet"))
 cellular.indicators <- as.data.frame(wbsearch(pattern = "cellular"))
 
 
 ```
 
-```{r}
+Below we can see a data frame with all of the internet indicators. Please note that most of these have been retired and have been reported since 2011. They were therefore not included.
+```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 internet.indicators
 ```
 
-```{r}
+
+Similarly, here is all of the indicators relating to cell phones.
+```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 cellular.indicators
 
 ```
 
-```{r}
+
+Now, I start collecting and cleaning the data for our purposes. I am only interested in the most recent data and will therefore be discarding the data data for the time being as well as the extraneous country/data point identifiers. Below we see the broadband subscription rate per 100 people, binned by country.
+```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 bb.per.100 <- as.data.frame(wb(indicator = "IT.NET.BBND.P2", startdate = 2017, enddate =2017))
 bb.per.100$date <- NULL
 bb.per.100$indicatorID <- NULL
@@ -40,7 +55,9 @@ df1 <- bb.per.100
 df1
 ```
 
-```{r}
+
+Next, we have the number of cellular subscriptions per 100 people. Please note that it is possible for people to have more than 1 cell phone subscription, which is why Russia has over 150 per 100 people.
+```{r, echo = FALSE, warning=FALSE, collapse=TRUE}
 cell.per.100 <- as.data.frame(wb(indicator = "IT.CEL.SETS.P2", startdate = 2017, enddate =2017))
 cell.per.100$date <- NULL
 cell.per.100$indicatorID <- NULL
@@ -53,6 +70,7 @@ df2 <- cell.per.100
 df2
 ```
 
+Likewise, we can see the number of Internet connected servers per one million people below. I divided the data vector by 100 to have more approachable numbers and shifted the two biggest outliers down to the level of the 3rd most dense country. That way, the color scale would be useful since plotly doesn't have out-of-the-box logarithmic support. While the plot is a little misleading, the basic facts of which countries have more servers is preserved.
 
 ```{r}
 servers.per.million <- as.data.frame(wb(indicator = "IT.NET.SECR.P6", startdate = 2017, enddate =2017))
@@ -61,13 +79,16 @@ servers.per.million$indicatorID <- NULL
 servers.per.million$iso2c <- NULL
 servers.per.million$country <- NULL
 servers.per.million$indicator <- NULL
-
 colnames(servers.per.million) <-   c("Country", "Servers")
+plot(servers.per.million$Servers/100)
 
+servers.per.million$Servers[servers.per.million$Servers/100 > 150]  <- 150
+plot(servers.per.million$Servers/100)
 df3 <- servers.per.million
-df3
+df3 
 ```
 
+Similarly, theworld bank collects data about high-tech exports, measured in 2017 USD. As we can see, many countries have no data available, not because of poor reporting, but because of a lack of high-tech export economies.
 
 ```{r}
 high.tech.exports <- as.data.frame(wb(indicator = "TX.VAL.TECH.CD", startdate = 2017, enddate =2017))
@@ -81,9 +102,8 @@ colnames(high.tech.exports) <-  c("Country",  "Exports")
 df4 <- high.tech.exports
 df4
 ```
-```{r}
 
-```
+Finally, I look at some concrete data from the IEEE, the organization tasked with (among other things) assigning blocks of Mac Addresses to manufacturers, assemblers, and resellers around the world. By scraping the allocation file directly, we can ensure our data is as up to date as possible. Then, using some ugly-looking regex, I was able to parse out the two-letter country codes for each Mac Address block. In this way, I can look at the number of unique assignments per country, an indicator of the production side of internet  infrastructure. Additionally, I included an optional line for downloading the Mac Address data for further analysis and historical purposes. 
 
 ```{r}
 #df5 <- curl_download("http://standards-oui.ieee.org/oui.txt", "MACs.txt")
@@ -126,12 +146,15 @@ df5$Country <- df5$country
 df5$country <- NULL
 ```
 
+Finally, I merged the five data frames together and wrote it out as a csv. 
+
 ```{r}
 # Broadband, Cells, Servers, Exports
 df <- merge(x = df1, y = df2, by = "Country", all = TRUE)
 df <- merge(x = df,  y = df3, by = "Country", all = TRUE)
 df <- merge(x = df,  y = df4, by = "Country", all = TRUE)
 df <- merge(x = df,  y = df5, by = "Country", all = TRUE)
+df$Country <- countrycode(df$Country, "iso3c", "country.name")
 df
 write.csv(df, file = "InternetIndicators.csv")
 ```
